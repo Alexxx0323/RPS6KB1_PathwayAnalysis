@@ -11,20 +11,17 @@ library(grid)
 library(cowplot)
 library(ggrepel)
 library(hexbin)
-
+library(vsn)
 
 setwd("/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL")
 source("support_functions.R")
 
-# if (!require("BiocManager", quietly = TRUE))
-#     install.packages("BiocManager")
-# BiocManager::install("vsn", force=TRUE)
-library(vsn)
-
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+#==================================================================================================================================================================
 print("### 1: Data importing and manipulation in r")
 setwd("/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/GSE107934_RAW")
 
-## list all files endingin in 'txt.gz' using regex
 fileList = list.files(pattern = ".*.txt.gz") 
 
 data_all = list.files(pattern = ".*.txt.gz") %>%
@@ -34,11 +31,9 @@ data_all = list.files(pattern = ".*.txt.gz") %>%
 count_df = data_all[,c(seq(2,58,2))]
 count_df
 
-## append row names (ENSG*) from data_all to count_df
 row.names(count_df) = data_all$V1...1
 count_df
 
-# `P` stands for Participants, in sequence of files read
 dataSet_names = c("basal.P1", "AT.1h.P1", "AT.4h.P1", "RT.1h.P1", "RT.4h.P1",
                   "basal.P2", "AT.1h.P2", "AT.4h.P2", "RT.1h.P2", "RT.4h.P2",
                   "basal.P3", "AT.1h.P3", "AT.4h.P3", "RT.1h.P3", "RT.4h.P3",
@@ -46,54 +41,39 @@ dataSet_names = c("basal.P1", "AT.1h.P1", "AT.4h.P1", "RT.1h.P1", "RT.4h.P1",
                   "basal.P5", "AT.1h.P5", "AT.4h.P5", "RT.1h.P5", "RT.4h.P5",
                   "basal.P7", "AT.1h.P7", "AT.4h.P7", "RT.1h.P7", "RT.4h.P7")
 
-# setting column names
 names(count_df) = dataSet_names
 head(count_df)
 
-
-## Pre-processing and normalization
 targets <- as.data.frame(matrix(NA,length(names(count_df)),2))
 
-## change the column names of targets
 names(targets) <- c("sample","condition")
 
-## change the row names of targets under 'sample' to 'basal.P1', ...
 targets$sample <- names(count_df)
 
-## remove the participants ('P1', 'P2', ...) in column names of count_df and append under 'condition'
-## column of 'targets'
 targets$condition <- gsub(".P[1-7]$","",targets$sample)
 
 head(targets)
 
-## Retain rows with a positive sum
 count_df <- count_df[rowSums(count_df) > 0,]
 
-## Remaining 0 entries have to be made as NA so that log2 transformation is possible (cannot log on zero's)
 count_df[count_df == 0] <- NA
 
-# make the plots using PCA analysis
 plots <- magicPlotMakerLight(df = log2(count_df), targets = targets)
 plot(plots[[1]] + geom_hline(yintercept=0.5)) #violin plot gemo_hline() to see where bimodal starts
 plot(plots[[2]]) 
 count_df[log2(count_df) < 0.5 ] <- NA
-
 count_df <- count_df[rowSums(is.na(count_df[,c(1:3)])) < 2,] #c(1:3): basal.P1 AT.1h.P1 AT.4h.P1
 count_df <- count_df[rowSums(is.na(count_df[,c(4:6)])) < 2,] #c(4:6): RT.1h.P1 RT.4h.P1 basal.P2
 
-## now we can normalise the cleaned dataframe using vsn
 fit <- vsn::vsnMatrix(as.matrix(count_df)) #train vsn parameters
 meanSdPlot(fit)
 
-
-## predict using the fit data from last step
 count_df_vsn <- as.data.frame(vsn::predict(fit, as.matrix(count_df)))
 
 plots <- magicPlotMakerLight(df = log2(count_df_vsn), targets = targets)
 plot(plots[[1]]) #violins
 plot(plots[[2]]) #PCA
 
-## read from uniprot mapping file and remove NA entries
 gene_id_mapping_from_uniprot <- as.data.frame(
   read_delim("/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/support/gene_id_mapping_from_uniprot.tab", 
              "\t", escape_double = FALSE, trim_ws = TRUE))
@@ -112,16 +92,22 @@ for(i in 1:length(count_df_vsn[,1]))
   row.names(count_df_vsn)[i] <- ensembl_to_symbol[row.names(count_df_vsn)[i]]
 }
 
-## Write count and target files for further analysis
 to_write <- count_df_vsn
 to_write$gene <- row.names(to_write)
 
-## to write has one extra row with gene compared to count_df_vsn
 to_write <- to_write[,c(length(to_write[1,]),1:(length(to_write[1,])-1))]
 write_csv(to_write, 
           file = "/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/data/count_df_vsn.csv")
 write_csv(targets, "/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/support/targets.csv")
 
+
+
+
+
+
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+#==================================================================================================================================================================
 print("### 2: Differential analysis")
 library(limma)
 unique(targets$condition)
@@ -140,11 +126,8 @@ plot(sort(null_model), sort(ttop_B_vs_AT.1h$P.Value) ,
      title("AT 1 hour versus basal")) #not bad, not great, let's proceed
 abline(coef = c(0,1))
 
-
-#Basal versus AT 4 hour
 ttop_B_vs_AT.4h <- ttopFormatter(topTable(limmaRes[[1]], coef = 2, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
 
-#make a qqplot
 null_model <- pnorm(rnorm(length(ttop_B_vs_AT.4h[,1])))
 plot(sort(null_model), sort(ttop_B_vs_AT.4h$P.Value), 
      xlim = c(1,0), ylim = c(1,0), 
@@ -154,7 +137,6 @@ abline(coef = c(0,1))
 #AT 1 hour versus AT 4 hour
 ttop_AT.1h_vs_AT.4h <- ttopFormatter(topTable(limmaRes[[1]], coef = 3, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
 
-#make a qqplot
 null_model <- pnorm(rnorm(length(ttop_B_vs_AT.4h[,1])))
 plot(sort(null_model), sort(ttop_B_vs_AT.4h$P.Value), 
      xlim = c(1,0), ylim = c(1,0),
@@ -164,18 +146,15 @@ abline(coef = c(0,1))
 #Basal versus RT 1 hour
 ttop_B_vs_RT.1h <- ttopFormatter(topTable(limmaRes[[1]], coef = 4, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
 
-#make a qqplot
 null_model <- pnorm(rnorm(length(ttop_B_vs_RT.1h[,1])))
 plot(sort(null_model), sort(ttop_B_vs_RT.1h$P.Value), 
      xlim = c(1,0), ylim = c(1,0),
      title("RT 1 hour versus basal")) 
 abline(coef = c(0,1))
 
-
 #Basal versus RT 4 hour
 ttop_B_vs_RT.4h <- ttopFormatter(topTable(limmaRes[[1]], coef = 5, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
 
-#make a qqplot
 null_model <- pnorm(rnorm(length(ttop_B_vs_RT.4h[,1])))
 plot(sort(null_model), sort(ttop_B_vs_RT.4h$P.Value), 
      xlim = c(1,0), ylim = c(1,0),
@@ -186,7 +165,6 @@ abline(coef = c(0,1))
 #RT 1 hour versus RT 4 hour
 ttop_RT.1h_vs_RT.4h <- ttopFormatter(topTable(limmaRes[[1]], coef = 6, number = length(count_df_vsn[,1]), adjust.method = "fdr"))
 
-#make a qqplot
 null_model <- pnorm(rnorm(length(ttop_RT.1h_vs_RT.4h[,1])))
 plot(sort(null_model), sort(ttop_RT.1h_vs_RT.4h$P.Value),
      xlim = c(1,0), ylim = c(1,0),
@@ -207,13 +185,14 @@ write_csv(ttop_RT.1h_vs_RT.4h,
           file = "/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/data/ttop_RT.1h_vs_RT.4h.csv")
 
 
+
+
+
+
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+#==================================================================================================================================================================
 print("### 3: Pathway activity (PROGENy)")
-# if (!require("BiocManager", quietly = TRUE))
-#     install.packages("BiocManager")
-# BiocManager::install("progeny", force=TRUE)
-# if (!require("BiocManager", quietly = TRUE))
-#     install.packages("BiocManager")
-# BiocManager::install("dorothea", force=TRUE)
 library(progeny)
 library(dorothea)
 library(tibble)
@@ -265,6 +244,11 @@ ttop_RT.1h_vs_RT.4h_matrix <- ttop_RT.1h_vs_RT.4h %>%
     as.matrix()
 
 
+
+
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+#==================================================================================================================================================================
 print("## Pathway activity with Progeny (pathway activity estimator)")
 PathwayActivity_counts <- progeny(Normalised_counts_matrix, scale=TRUE, organism="Human", top = 100)
 Activity_counts <- as.vector(PathwayActivity_counts)
@@ -518,6 +502,11 @@ ggplot(PathwayActivity_zscore_df,aes(x = reorder(Pathway, NES), y = NES)) +
     xlab("Pathways")
 
 
+
+
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+#==================================================================================================================================================================
 print("### 4: Transcription Factor activity (DoRothEA)")
 # Normalised_counts_dorothea = count_df_vsn
 # Experimental_design_dorothea = targets
@@ -527,8 +516,6 @@ Experimental_design_dorothea <- read_csv("/home/rza104/scratch/usra/BPK_Work_Stu
 # ttop_B_vs_RT.4h_dorothea = ttop_B_vs_RT.4h
 ttop_B_vs_AT.4h_dorothea <- read_csv("/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/data/ttop_B_vs_AT.4h.csv")
 ttop_B_vs_RT.4h_dorothea <- read_csv("/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/data/ttop_B_vs_RT.4h.csv")
-
-
 
 #replace NA entries with 0
 Normalised_counts_matrix_dorothea <- Normalised_counts_dorothea %>% 
@@ -584,8 +571,6 @@ ggplot(tf_activities_stat_top25_B_vs_AT.4h, aes(x = reorder(GeneID, NES), y = NE
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank()) +
     xlab("Transcription Factors")
-
-
 
 targets_NFKB1 <- regulons$target[regulons$tf == "NFKB1"] #targets of "TCF4"
 
@@ -709,7 +694,6 @@ tf_activities <- tf_activities_CARNIVALinput_RT.4h_vs_b
 PathwayActivity <- PathwayActivity_CARNIVALinput_B_vs_RT.4h
 
 
-
 print("## Getting the scaffold network from Omnipath")
 omniR <- import_omnipath_interactions()
   
@@ -741,7 +725,12 @@ sif$target <- gsub(":", "_", sif$target)
 #save SIF
 write_tsv(sif, "/home/rza104/scratch/usra/BPK_Work_Study/CARNIVAL/Results/omnipath_carnival.tsv")
 
-print("## Transcription Factor and pathway activities for CARNIVAL")
+
+
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+#==================================================================================================================================================================
+print("### Part 6: Transcription Factor and pathway activities for CARNIVAL")
 # dorothea for CARNIVAL
 tf_activities_carnival <- data.frame(tf_activities, stringsAsFactors = F)
 rownames(tf_activities_carnival) <- tf_activities$TF
