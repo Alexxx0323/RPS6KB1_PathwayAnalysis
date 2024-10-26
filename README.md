@@ -5,13 +5,14 @@
 The 'RPS6KB1_PathwayAnalysis' folder contains all required files (input data, tutorials, output files) to run the model and produce the data for generating the manuscript figures.
 ### Installation
 Download the entire folder (RPS6KB1_PathwayAnalysis/) using the following command: 
-`https://github.com/Alexxx0323/RPS6KB1_PathwayAnalysis.git`.
+``` bash
+git clone https://github.com/Alexxx0323/RPS6KB1_PathwayAnalysis.git
 
 ### Running the model
 ### File list
 
-'GSE107934_RAW/GSE107934_RAW/' folder:
-- Experimental data from study Dickinson et al. (2018) [1].
+- 'GSE107934_RAW/GSE107934_RAW/' folder:
+   Experimental data from study Dickinson et al. (2018) [1].
 ### Contact
 tmccoll@sfu.ca
 
