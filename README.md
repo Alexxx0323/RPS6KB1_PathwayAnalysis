@@ -7,7 +7,7 @@ The 'RPS6KB1_PathwayAnalysis' folder contains all required files (input data, tu
 Download the entire folder (RPS6KB1_PathwayAnalysis/) using the following command: 
 ``` bash
 git clone https://github.com/Alexxx0323/RPS6KB1_PathwayAnalysis.git
-``` bash
+ls -la
 
 ### Running the model
 ### File list
