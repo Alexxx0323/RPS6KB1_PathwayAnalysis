@@ -1,0 +1,23 @@
+!SESSION 2023-06-17 00:06:05.796 -----------------------------------------------
+eclipse.buildId=Build R0
+java.fullversion=11.0.13+8
+JRE 11 Windows 10 amd64-64-Bit Compressed References 20211022_218 (JIT enabled, AOT enabled)
+OpenJ9   - e1e72c497
+OMR      - 299b6a2d2
+JCL      - 2d83aa3b76 based on jdk-11.0.13+8
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -clean
+
+!ENTRY org.eclipse.ui 2 2 2023-06-17 00:06:16.841
+!MESSAGE Invalid preference category path: org.eclipse.wst.html.ui.preferences.web (bundle: org.eclipse.wst.jsdt.ui, page: org.eclipse.wst.jsdt.ui.preferences.JavaBasePreferencePage)
+
+!ENTRY org.eclipse.jface.text 4 0 2023-06-17 00:07:55.076
+!MESSAGE Unexpected runtime error while computing a text hover
+!STACK 0
+java.lang.NullPointerException
+	at ilog.odms.ide.ui.editors.model.IloModelTextHoverAST.getElementHover(IloModelTextHoverAST.java:74)
+	at ilog.odms.ide.ui.editors.model.IloModelTextHoverAST.getHoverInfo(IloModelTextHoverAST.java:116)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:157)
+
+!ENTRY ilog.odms.ide.opllang 1 0 2023-06-17 01:09:16.274
+!MESSAGE concert_wrap.IloEndMT

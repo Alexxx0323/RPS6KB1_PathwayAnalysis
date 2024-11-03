@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="OplSearchPage">
+		<item key="CASE_SENSITIVE" value="false"/>
+		<item key="HISTORY_SIZE" value="1"/>
+		<section name="HISTORY0">
+			<item key="searchFor" value="0"/>
+			<item key="scope" value="0"/>
+			<item key="pattern" value="emphasis"/>
+			<item key="limitTo" value="2"/>
+			<item key="isCaseSensitive" value="true"/>
+			<list key="workingSets">
+			</list>
+		</section>
+	</section>
+</section>
