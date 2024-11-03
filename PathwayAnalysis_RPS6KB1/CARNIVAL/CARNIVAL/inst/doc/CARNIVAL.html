@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Enio Gjerga" />
+
+<meta name="date" content="2021-03-19" />
+
+<title>Contextualizing large scale signalling networks from expression footprints with CARNIVAL</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Contextualizing large scale signalling networks from expression footprints with CARNIVAL</h1>
+<h4 class="author">Enio Gjerga</h4>
+<h4 class="date">2021-03-19</h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>While gene expression profiling is commonly used to gain an overview of cellular processes, the identification of upstream processes that drive expression changes remains a challenge. To address this issue, we introduce CARNIVAL (<a href="https://www.nature.com/articles/s41540-019-0118-z">Liu, Trairatphisan, Gjerga et al 2019</a>), a causal network contextualization tool which derives network architectures from gene expression footprints. <a href="https://saezlab.github.io/CARNIVAL/">CARNIVAL</a> (CAusal Reasoning pipeline for Network identification using Integer VALue programming) integrates different sources of prior knowledge including signed and directed protein-protein interactions, transcription factor targets, and pathway signatures.</p>
+<div id="pipeline" class="section level2">
+<h2>Pipeline</h2>
+<p>CARNIVAL refines a quantitative objective function for ILP problem by incorporating TF and pathway activities on a continuous scale. In addition, the CARNIVAL framework allows us to contextualize the network with or without known targets of perturbations. The implementation is separated into two pipelines which will be referred henceforth as Standard CARNIVAL StdCARNIVAL (with known perturbation targets as an input) and Inverse CARNIVAL InvCARNIVAL (without information on targets of perturbation). The differential gene expression is used to infer transcription factor (TF) activities with DoRothEA, which are subsequently discretized in order to formulate ILPconstraints. As a result, CARNIVAL derives a family of highest scoring networks which best explain the inferred TF activities. Continuous pathway and TF activities can be additionally considered in the objective function.</p>
+</div>
+<div id="ilp-solvers" class="section level2">
+<h2>ILP solvers</h2>
+<p>CARNIVAL is an extension of the previously implemented Causal Reasoning method from <a href="https://pubs.rsc.org/en/content/articlelanding/2015/ib/c4ib00294f#!divAbstract">Melas et al.</a>. The network inference process is swiftly performed with an Integer Linear Programming (ILP) formulation of causal reasoning using three solvers: the <a href="https://cran.r-project.org/web/packages/lpSolve/index.html">R-CRAN lpSolve</a> free software used for solving linear problems; the open-source mixed integer programming solver <a href="https://projects.coin-or.org/Cbc">Cbc</a> (Coin-or branch and cut); or the <a href="https://www.ibm.com/analytics/cplex-optimizer">CPLEX optimizer</a> from IBM which can be obtained for free through the Academic Initiative. To perform the analysis with cplex or cbc, the users will then need to store the binary cbc or cplex executables on any directory they wish. The binary files of cbc can be found by first downloading one of the optimization suites provided here: <a href="https://www.coin-or.org/download/binary/OptimizationSuite/" class="uri">https://www.coin-or.org/download/binary/OptimizationSuite/</a>, unzip the download and from there save the cbc executable (which can be found on the bin directory) file on any of the direcotries they wish of their machines. As for the cplex, the executable file can be obtained after registration on the <a href="%7Bhttps://my15.digitalexperience.ibm.com/b73a5759-c6a6-4033-ab6b-d9d4f9a6d65b/dxsites/151914d1-03d2-48fe-97d9-d21166848e65/technology/data-science">ILOG CPLEX Optimization Studio</a> Similar like before, users will have to find the cplex executable binary file and save on a directory of their own wish or keep them on their default installation paths. The path to interactive version of CPLEX is differed based on the operating system. The default installation path for each OS is as follows:</p>
+<p>For Mac OS:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># ~/Applications/IBM/ILOG/CPLEX_Studio129/cplex/bin/x86-64_osx/cplex</span></a></code></pre></div>
+<p>For Linux:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># /opt/ibm/ILOG/CPLEX_Studio129/cplex/bin/x86-64_linux/cplex</span></a></code></pre></div>
+<p>For Windows:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># C:/Program Files/IBM/ILOG/CPLEX_Studio129/cplex/bin/x64_win64/cplex.exe</span></a></code></pre></div>
+<p>Note that the version of CPLEX has to be changed accordingly (the latest current version is CPLEX-Studio129).</p>
+<p>The lpSolve solver can be used after downloading and installing the <a href="https://cran.r-project.org/web/packages/lpSolve/index.html">lpSolve</a> R-package. This solver only works for smaller examples and it can give only one optimal solution. For larger real-case examples, the users can use cbc or cplex solvers.</p>
+</div>
+<div id="prerequisites" class="section level2">
+<h2>Prerequisites</h2>
+<p>Besides the above mentioned solvers, users need also to install the following R-package dependencies: <a href="https://cran.r-project.org/web/packages/readr/index.html">readr</a>; <a href="https://igraph.org/r/">igraph</a>; <a href="https://readxl.tidyverse.org/">readxl</a>; <a href="https://www.rdocumentation.org/packages/dplyr/versions/0.7.8">dplyr</a>; <a href="https://cran.r-project.org/web/packages/lpSolve/index.html">lpSolve</a></p>
+<p>In order to visualize the automatically generated CARNIVAL networks, users will also need to download and install the Graph Visualization software <a href="https://www.graphviz.org/">graphviz</a>.</p>
+</div>
+</div>
+<div id="running-carnival" class="section level1">
+<h1>Running CARNIVAL</h1>
+<p>In the CARNIVAL package, built-in examples are available as the test cases as follows:</p>
+<ol style="list-style-type: decimal">
+<li><p>A small toy example where the inputs are known (stdCARNIVAL)</p></li>
+<li><p>A small toy example where the inputs are not known (invCARNVAL)</p></li>
+</ol>
+<div id="toy-example---1" class="section level2">
+<h2>Toy Example - 1</h2>
+<p>Toy example for the stdCARNIVAL pipeline:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">library</span>(CARNIVAL)</a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="kw">load</span>(<span class="dt">file =</span> <span class="kw">system.file</span>(<span class="st">&quot;toy_inputs_ex1.RData&quot;</span>,</a>
+<a class="sourceLine" id="cb4-4" title="4">                        <span class="dt">package=</span><span class="st">&quot;CARNIVAL&quot;</span>))</a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">load</span>(<span class="dt">file =</span> <span class="kw">system.file</span>(<span class="st">&quot;toy_measurements_ex1.RData&quot;</span>,</a>
+<a class="sourceLine" id="cb4-6" title="6">                        <span class="dt">package=</span><span class="st">&quot;CARNIVAL&quot;</span>))</a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="kw">load</span>(<span class="dt">file =</span> <span class="kw">system.file</span>(<span class="st">&quot;toy_network_ex1.RData&quot;</span>,</a>
+<a class="sourceLine" id="cb4-8" title="8">                        <span class="dt">package=</span><span class="st">&quot;CARNIVAL&quot;</span>))</a>
+<a class="sourceLine" id="cb4-9" title="9"></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="co"># lpSolve</span></a>
+<a class="sourceLine" id="cb4-11" title="11">result =<span class="st"> </span><span class="kw">runCARNIVAL</span>(<span class="dt">inputObj =</span> toy_inputs_ex1, <span class="dt">measObj =</span> toy_measurements_ex1,</a>
+<a class="sourceLine" id="cb4-12" title="12">                     <span class="dt">netObj =</span> toy_network_ex1)</a>
+<a class="sourceLine" id="cb4-13" title="13"></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="kw">print</span>(result)</a></code></pre></div>
+<pre><code>## $weightedSIF
+##      Node1 Sign Node2 Weight
+## [1,] &quot;I1&quot;  &quot;1&quot;  &quot;N1&quot;  &quot;100&quot; 
+## [2,] &quot;N1&quot;  &quot;1&quot;  &quot;M1&quot;  &quot;100&quot; 
+## [3,] &quot;N1&quot;  &quot;1&quot;  &quot;M2&quot;  &quot;100&quot; 
+## 
+## $nodesAttributes
+##      Node ZeroAct UpAct DownAct AvgAct NodeType
+## [1,] &quot;I1&quot; &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;S&quot;     
+## [2,] &quot;N1&quot; &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;&quot;      
+## [3,] &quot;I2&quot; &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;S&quot;     
+## [4,] &quot;N2&quot; &quot;100&quot;   &quot;0&quot;   &quot;0&quot;     &quot;0&quot;    &quot;&quot;      
+## [5,] &quot;M1&quot; &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;T&quot;     
+## [6,] &quot;M2&quot; &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;T&quot;     
+## 
+## $sifAll
+## $sifAll[[1]]
+##      Node1 Sign Node2
+## [1,] &quot;I1&quot;  &quot;1&quot;  &quot;N1&quot; 
+## [2,] &quot;N1&quot;  &quot;1&quot;  &quot;M1&quot; 
+## [3,] &quot;N1&quot;  &quot;1&quot;  &quot;M2&quot; 
+## 
+## 
+## $attributesAll
+## $attributesAll[[1]]
+##      Nodes Activity
+## [1,] &quot;I1&quot;  &quot;1&quot;     
+## [2,] &quot;N1&quot;  &quot;1&quot;     
+## [3,] &quot;I2&quot;  &quot;1&quot;     
+## [4,] &quot;M1&quot;  &quot;1&quot;     
+## [5,] &quot;M2&quot;  &quot;1&quot;</code></pre>
+</div>
+<div id="toy-example---2" class="section level2">
+<h2>Toy Example - 2</h2>
+<p>Toy example for the invCARNIVAL pipeline:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">library</span>(CARNIVAL) <span class="co"># load CARNIVAL library</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">load</span>(<span class="dt">file =</span> <span class="kw">system.file</span>(<span class="st">&quot;toy_measurements_ex2.RData&quot;</span>,</a>
+<a class="sourceLine" id="cb6-4" title="4">                        <span class="dt">package=</span><span class="st">&quot;CARNIVAL&quot;</span>))</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="kw">load</span>(<span class="dt">file =</span> <span class="kw">system.file</span>(<span class="st">&quot;toy_network_ex2.RData&quot;</span>,</a>
+<a class="sourceLine" id="cb6-6" title="6">                        <span class="dt">package=</span><span class="st">&quot;CARNIVAL&quot;</span>))</a>
+<a class="sourceLine" id="cb6-7" title="7"></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="co"># lpSolve</span></a>
+<a class="sourceLine" id="cb6-9" title="9">result =<span class="st"> </span><span class="kw">runCARNIVAL</span>(<span class="dt">measObj =</span> toy_measurements_ex2, <span class="dt">netObj =</span> toy_network_ex2)</a>
+<a class="sourceLine" id="cb6-10" title="10"></a>
+<a class="sourceLine" id="cb6-11" title="11"><span class="kw">print</span>(result)</a></code></pre></div>
+<pre><code>## $weightedSIF
+##      Node1          Sign Node2 Weight
+## [1,] &quot;I2&quot;           &quot;1&quot;  &quot;N1&quot;  &quot;100&quot; 
+## [2,] &quot;I2&quot;           &quot;1&quot;  &quot;N2&quot;  &quot;100&quot; 
+## [3,] &quot;N1&quot;           &quot;1&quot;  &quot;M1&quot;  &quot;100&quot; 
+## [4,] &quot;N1&quot;           &quot;1&quot;  &quot;M2&quot;  &quot;100&quot; 
+## [5,] &quot;N2&quot;           &quot;1&quot;  &quot;M2&quot;  &quot;100&quot; 
+## [6,] &quot;N2&quot;           &quot;1&quot;  &quot;M3&quot;  &quot;100&quot; 
+## [7,] &quot;Perturbation&quot; &quot;1&quot;  &quot;I2&quot;  &quot;100&quot; 
+## 
+## $nodesAttributes
+##       Node           ZeroAct UpAct DownAct AvgAct NodeType
+##  [1,] &quot;I1&quot;           &quot;100&quot;   &quot;0&quot;   &quot;0&quot;     &quot;0&quot;    &quot;&quot;      
+##  [2,] &quot;I2&quot;           &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;&quot;      
+##  [3,] &quot;I3&quot;           &quot;100&quot;   &quot;0&quot;   &quot;0&quot;     &quot;0&quot;    &quot;&quot;      
+##  [4,] &quot;N1&quot;           &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;&quot;      
+##  [5,] &quot;N2&quot;           &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;&quot;      
+##  [6,] &quot;Perturbation&quot; &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;S&quot;     
+##  [7,] &quot;M1&quot;           &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;T&quot;     
+##  [8,] &quot;M2&quot;           &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;T&quot;     
+##  [9,] &quot;M3&quot;           &quot;0&quot;     &quot;100&quot; &quot;0&quot;     &quot;100&quot;  &quot;T&quot;     
+## 
+## $sifAll
+## $sifAll[[1]]
+##      Node1          Sign Node2
+## [1,] &quot;I2&quot;           &quot;1&quot;  &quot;N1&quot; 
+## [2,] &quot;I2&quot;           &quot;1&quot;  &quot;N2&quot; 
+## [3,] &quot;N1&quot;           &quot;1&quot;  &quot;M1&quot; 
+## [4,] &quot;N1&quot;           &quot;1&quot;  &quot;M2&quot; 
+## [5,] &quot;N2&quot;           &quot;1&quot;  &quot;M2&quot; 
+## [6,] &quot;N2&quot;           &quot;1&quot;  &quot;M3&quot; 
+## [7,] &quot;Perturbation&quot; &quot;1&quot;  &quot;I2&quot; 
+## 
+## 
+## $attributesAll
+## $attributesAll[[1]]
+##      Nodes          Activity
+## [1,] &quot;I2&quot;           &quot;1&quot;     
+## [2,] &quot;N1&quot;           &quot;1&quot;     
+## [3,] &quot;N2&quot;           &quot;1&quot;     
+## [4,] &quot;Perturbation&quot; &quot;1&quot;     
+## [5,] &quot;M1&quot;           &quot;1&quot;     
+## [6,] &quot;M2&quot;           &quot;1&quot;     
+## [7,] &quot;M3&quot;           &quot;1&quot;</code></pre>
+</div>
+<div id="r-version-information" class="section level2">
+<h2>R version information</h2>
+<pre><code>## R Under development (unstable) (2021-03-18 r80099)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 20.04.2 LTS
+## 
+## Matrix products: default
+## BLAS:   /home/biocbuild/bbs-3.13-bioc/R/lib/libRblas.so
+## LAPACK: /home/biocbuild/bbs-3.13-bioc/R/lib/libRlapack.so
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=C              
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] CARNIVAL_1.3.0 knitr_1.31    
+## 
+## loaded via a namespace (and not attached):
+##   [1] segmented_1.3-3      Category_2.57.2      bitops_1.0-6        
+##   [4] bit64_4.0.5          filelock_1.0.2       doParallel_1.0.16   
+##   [7] httr_1.4.2           tools_4.1.0          bslib_0.2.4         
+##  [10] utf8_1.2.1           R6_2.5.0             KernSmooth_2.23-18  
+##  [13] DBI_1.1.1            BiocGenerics_0.37.1  colorspace_2.0-0    
+##  [16] tidyselect_1.1.0     curl_4.3             bit_4.0.4           
+##  [19] compiler_4.1.0       cli_2.3.1            graph_1.69.0        
+##  [22] Biobase_2.51.0       sass_0.3.1           scales_1.1.1        
+##  [25] readr_1.4.0          genefilter_1.73.1    proxy_0.4-25        
+##  [28] RBGL_1.67.0          rappdirs_0.3.3       stringr_1.4.0       
+##  [31] digest_0.6.27        mixtools_1.2.0       rmarkdown_2.7       
+##  [34] XVector_0.31.1       pkgconfig_2.0.3      htmltools_0.5.1.1   
+##  [37] dbplyr_2.1.0         fastmap_1.1.0        rlang_0.4.10        
+##  [40] rstudioapi_0.13      RSQLite_2.2.4        jquerylib_0.1.3     
+##  [43] generics_0.1.0       jsonlite_1.7.2       viper_1.25.0        
+##  [46] dplyr_1.0.5          RCurl_1.98-1.3       magrittr_2.0.1      
+##  [49] Matrix_1.3-2         Rcpp_1.0.6           munsell_0.5.0       
+##  [52] S4Vectors_0.29.9     fansi_0.4.2          lifecycle_1.0.0     
+##  [55] stringi_1.5.3        yaml_2.2.1           UniProt.ws_2.31.1   
+##  [58] debugme_1.1.0        MASS_7.3-53.1        zlibbioc_1.37.0     
+##  [61] BiocFileCache_1.15.1 grid_4.1.0           blob_1.2.1          
+##  [64] parallel_4.1.0       crayon_1.4.1         lattice_0.20-41     
+##  [67] Biostrings_2.59.2    splines_4.1.0        annotate_1.69.2     
+##  [70] hms_1.0.0            KEGGREST_1.31.1      ps_1.6.0            
+##  [73] pillar_1.5.1         igraph_1.2.6         lpSolve_5.6.15      
+##  [76] codetools_0.2-18     stats4_4.1.0         XML_3.99-0.6        
+##  [79] glue_1.4.2           evaluate_0.14        png_0.1-7           
+##  [82] vctrs_0.3.6          foreach_1.5.1        gtable_0.3.0        
+##  [85] purrr_0.3.4          kernlab_0.9-29       assertthat_0.2.1    
+##  [88] cachem_1.0.4         ggplot2_3.3.3        xfun_0.22           
+##  [91] xtable_1.8-4         e1071_1.7-6          class_7.3-18        
+##  [94] survival_3.2-10      tibble_3.1.0         iterators_1.0.13    
+##  [97] AnnotationDbi_1.53.1 memoise_2.0.0        IRanges_2.25.6      
+## [100] ellipsis_0.3.1       GSEABase_1.53.1</code></pre>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
